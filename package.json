@@ -1,0 +1,16 @@
+{
+  "name": "slippi-chat-client",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@slippi/slippi-js": "^6.6.1",
+    "@vinceau/slp-realtime": "^3.3.0",
+    "rxjs": "^6.6.7"
+  }
+}
