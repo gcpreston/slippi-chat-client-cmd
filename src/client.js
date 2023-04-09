@@ -2,7 +2,8 @@ const { Socket } = require('phoenix-channels');
 const prompt = require('prompt-sync')();
 const { watchForGames } = require('./slippiWatcher');
 
-const code = prompt('What is your connect code? ');
+// const code = prompt('What is your connect code? ');c
+const code = 'WAFF#715'
 
 const socket = new Socket('ws://localhost:4000/socket');
 socket.connect();

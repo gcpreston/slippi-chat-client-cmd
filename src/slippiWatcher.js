@@ -1,6 +1,22 @@
 const formatPlayer = (player) => `${player.displayName} (${player.connectCode})`
 
 function watchForGames(clientCode, channel) {
+  console.log('new watching for games');
+  const { SlpParser, SlpStream, SlpStreamEvent } = require('@slippi/slippi-js');
+
+  const parser = new SlpParser();
+  const slpStream = new SlpStream();
+
+  slpStream.on(SlpStreamEvent.COMMAND, (event) => {
+		console.log("Commmand parsed by SlpStream: " + event.command + event.payload)
+		parser.handleCommand(event.command, event.payload);
+		if (event.command == 54) {
+			console.log('Game started:', parser.getSettings());
+		}
+	});
+}
+
+function watchForGamesOld(clientCode, channel) {
   const { SlpFolderStream, SlpRealTime } = require("@vinceau/slp-realtime");
 
   const slpLiveFolderPath = "/Users/graham.preston/Slippi";
