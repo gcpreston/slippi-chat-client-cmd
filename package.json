@@ -11,6 +11,8 @@
   "dependencies": {
     "@slippi/slippi-js": "^6.6.1",
     "@vinceau/slp-realtime": "^3.3.0",
+    "phoenix-channels": "^1.0.0",
+    "prompt-sync": "^4.2.0",
     "rxjs": "^6.6.7"
   }
 }
