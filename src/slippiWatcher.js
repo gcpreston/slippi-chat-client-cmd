@@ -1,16 +1,28 @@
+const { Ports } = require('@slippi/slippi-js');
+const { SlpLiveStream, SlpRealTime } = require("@vinceau/slp-realtime");
+
+const ADDRESS = '127.0.0.1';
+const PORT = Ports.DEFAULT;
+const CONNECTION_TYPE = 'dolphin';
+
 const formatPlayer = (player) => `${player.displayName} (${player.connectCode})`
 
 function watchForGames(clientCode, channel) {
-  const { SlpFolderStream, SlpRealTime } = require("@vinceau/slp-realtime");
-
-  const slpLiveFolderPath = "/Users/graham.preston/Slippi";
-  console.log(`Monitoring ${slpLiveFolderPath} for new SLP files`);
-
   // Connect to the relay
-  const stream = new SlpFolderStream();
+  const livestream = new SlpLiveStream(CONNECTION_TYPE);
+
+  livestream.start(ADDRESS, PORT)
+    .then(() => {
+      console.log('Connected to Slipi.');
+    })
+    .catch(console.error);
+
+  livestream.connection.on('statusChange', (status) => {
+    console.log('Slippi connection status changed:', status);
+  });
 
   const realtime = new SlpRealTime();
-  realtime.setStream(stream);
+  realtime.setStream(livestream);
 
   // Monitor for game start and end
   realtime.game.start$.subscribe((payload) => {
@@ -19,19 +31,15 @@ function watchForGames(clientCode, channel) {
     channel.push('game_started', { client: clientCode, players: players.map(p => p.connectCode) })
   });
 
-  realtime.game.end$.subscribe(() => {
-    console.log('Game ended');
+  realtime.game.end$.subscribe((payload) => {
+    console.log('Game ended', payload);
   });
 
   // Handle interrupt
   process.on("SIGINT", function() {
     console.log('Bye.');
-    stream.stop();
     process.exit();
   });
-
-  // Start monitoring the folder for changes
-  stream.start(slpLiveFolderPath);
 }
 
 exports.watchForGames = watchForGames;
