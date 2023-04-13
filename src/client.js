@@ -29,6 +29,7 @@ class Client {
 
     this.livestream.connection.on(ConnectionEvent.STATUS_CHANGE, (status) => {
       if (status === ConnectionStatus.DISCONNECTED) {
+        console.log('Slippi disconnected. Leaving channel.');
         this.channel.leave();
       }
     });
@@ -39,8 +40,8 @@ class Client {
       this.channel.isJoined() && this.channel.push('game_started', { client: clientCode, players: players.map(p => p.connectCode) })
     });
 
-    realtime.game.end$.subscribe((payload) => {
-      console.log('Game ended', payload);
+    realtime.game.end$.subscribe((_payload) => {
+      console.log('Game ended.');
       this.channel.isJoined() && this.channel.push('game_ended', { client: clientCode });
     });
   }
