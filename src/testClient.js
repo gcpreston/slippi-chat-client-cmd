@@ -2,6 +2,8 @@ const prompt = require('prompt-sync')();
 const { Socket } = require('phoenix-channels');
 
 const SOCKET_URL = 'ws://127.0.0.1:4000/socket';
+const TOPIC = 'clients';
+const ABC_TOKEN = 'paste token here';
 
 function exit() {
   console.log('Bye.');
@@ -11,13 +13,12 @@ function exit() {
 class TestClient {
   opponentCode = null;
 
-  constructor(playerCode) {
+  constructor(playerCode, opponentCode) {
     this.playerCode = playerCode;
-    this.socket = new Socket(SOCKET_URL);
+    this.opponentCode = opponentCode;
+    this.socket = new Socket(SOCKET_URL, { params: { client_token: ABC_TOKEN } });
     this.initializeChannel();
   }
-
-  topic = () => `players:${this.playerCode}`;
 
   setPlayerCode = (code) => {
     this.playerCode = code;
@@ -27,8 +28,12 @@ class TestClient {
     console.log(this.playerCode);
   }
 
-  setOpponent = (code) => {
-    this.opponentCode = code;
+  foe = (code) => {
+    if (code) {
+      this.opponentCode = code;
+    } else {
+      console.log('Opponent:', this.opponentCode);
+    }
   }
 
   gameStart = () => {
@@ -42,6 +47,10 @@ class TestClient {
     this.channel.isJoined() && this.channel.push('game_ended', { client: this.playerCode });
   }
 
+  gameMessge = () => {
+    this.channel.isJoined() && this.channel.push('game_messgage', { client: this.playerCode, players })
+  }
+
   execute = (command, args) => {
     switch (command) {
       case 'q':
@@ -51,11 +60,13 @@ class TestClient {
       case 'whoami':
         return this.whoami();
       case 'foe':
-        return this.setOpponent(args[0]);
+        return this.foe(args[0]);
       case 'start':
         return this.gameStart();
       case 'stop':
         return this.gameStop();
+      case 'message':
+        return this.gameMessge(args[0]);
     }
   }
 
@@ -101,7 +112,7 @@ class TestClient {
   }
 
   initializeChannel = () => {
-    this.channel = this.socket.channel(this.topic(), {});
+    this.channel = this.socket.channel(TOPIC);
   }
 }
 
@@ -110,5 +121,6 @@ process.on('SIGINT', () => {
 });
 
 const playerCode = process.argv.length > 2 ? process.argv[2] : null;
-const client = new TestClient(playerCode);
+const opponentCode = process.argv.length > 3 ? process.argv[3] : null;
+const client = new TestClient(playerCode, opponentCode);
 client.run();

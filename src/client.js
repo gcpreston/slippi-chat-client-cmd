@@ -12,12 +12,12 @@ const SLIPPI_ADDRESS = '127.0.0.1';
 const SLIPPI_PORT = Ports.DEFAULT;
 const CONNECTION_TYPE = 'dolphin';
 
-const SOCKET_URL = 'ws://192.168.0.38:4000/socket';
-const CLIENT_CODE = 'WAFF#715';
+const SOCKET_URL = 'ws://127.0.0.1:4000/socket';
+const CLIENT_CODE = 'MEGA#152';
 
 const formatPlayer = (player) => `${player.displayName} (${player.connectCode})`
 
-class Client {  
+class Client {
   constructor(socketUrl, clientCode) {
     this.topic = `players:${clientCode}`;
     this.socket = new Socket(socketUrl);
@@ -37,19 +37,19 @@ class Client {
     realtime.game.start$.subscribe((payload) => {
       const players = payload.players;
       console.log(`Game started between ${formatPlayer(players[0])} and ${formatPlayer(players[1])}`);
-      this.channel.isJoined() && this.channel.push('game_started', { client: clientCode, players: players.map(p => p.connectCode) })
+      this.channel.isJoined() && this.channel.push('game_started', { players: players.map(p => p.connectCode) })
     });
 
     realtime.game.end$.subscribe((_payload) => {
       console.log('Game ended.');
-      this.channel.isJoined() && this.channel.push('game_ended', { client: clientCode });
+      this.channel.isJoined() && this.channel.push('game_ended');
     });
   }
 
   connectToSlippi = () => {
     return this.livestream.start(SLIPPI_ADDRESS, SLIPPI_PORT)
       .then(() => {
-        console.log('Connected to Slipi.');
+        console.log('Connected to Slippi.');
       })
       .catch(console.error);
   }
@@ -65,8 +65,8 @@ class Client {
       .receive('ok', (resp) => {
         console.log('Joined successfully, reply:', resp);
       })
-      .receive('error', (resp) => { 
-        console.log('Unable to join:', resp) 
+      .receive('error', (resp) => {
+        console.log('Unable to join:', resp)
       });
   }
 
